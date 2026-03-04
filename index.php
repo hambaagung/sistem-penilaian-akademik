@@ -1,12 +1,5 @@
 <?php
-
-$mahasiswa = [
-    ["nama"=>"Andi","nim"=>"22001","jurusan"=>"Informatika","nilai"=>80],
-    ["nama"=>"Budi","nim"=>"22002","jurusan"=>"Sistem Informasi","nilai"=>70],
-    ["nama"=>"Citra","nim"=>"22003","jurusan"=>"Informatika","nilai"=>90],
-    ["nama"=>"Dina","nim"=>"22004","jurusan"=>"Manajemen","nilai"=>60],
-    ["nama"=>"Eko","nim"=>"22005","jurusan"=>"Akuntansi","nilai"=>75]
-];
+include "koneksi.php";
 
 $keyword = "";
 $dataDitemukan = false;
@@ -14,11 +7,16 @@ $dataDitemukan = false;
 if (isset($_GET['keyword'])) {
     $keyword = $_GET['keyword'];
 }
+
+// Ambil semua data dari database
+$result = mysqli_query($conn, "SELECT * FROM mahasiswa");
 ?>
 
 <!-- FORM PENCARIAN -->
 <form method="GET">
-    <input type="text" name="keyword" placeholder="Ketik kata kunci..." value="<?= htmlspecialchars($keyword); ?>">
+    <input type="text" name="keyword" 
+           placeholder="Ketik kata kunci..." 
+           value="<?= htmlspecialchars($keyword); ?>">
     <button type="submit">Cari</button>
     <a href="index.php">Reset Pencarian</a>
 </form>
@@ -27,18 +25,18 @@ if (isset($_GET['keyword'])) {
 
 <?php
 
-foreach ($mahasiswa as $data) {
+while ($data = mysqli_fetch_assoc($result)) {
 
     // Jika tidak ada pencarian → tampilkan semua
     if ($keyword == "") {
         $tampilkan = true;
     } else {
-        // dibuat lowercase agar tidak case-sensitive
         $nama = strtolower($data["nama"]);
         $jurusan = strtolower($data["jurusan"]);
         $keywordLower = strtolower($keyword);
 
-        if (str_contains($nama, $keywordLower) || str_contains($jurusan, $keywordLower)) {
+        if (str_contains($nama, $keywordLower) || 
+            str_contains($jurusan, $keywordLower)) {
             $tampilkan = true;
         } else {
             $tampilkan = false;
@@ -49,22 +47,22 @@ foreach ($mahasiswa as $data) {
 
         $dataDitemukan = true;
 
-        echo "Nama: " . $data["nama"] . "<br>";
-        echo "NIM: " . $data["nim"] . "<br>";
-        echo "Jurusan: " . $data["jurusan"] . "<br>";
-        echo "Nilai: " . $data["nilai"] . "<br>";
+        echo "Nama: " . htmlspecialchars($data["nama"]) . "<br>";
+        echo "NIM: " . htmlspecialchars($data["nim"]) . "<br>";
+        echo "Jurusan: " . htmlspecialchars($data["jurusan"]) . "<br>";
+        echo "Nilai: " . htmlspecialchars($data["nilai_akhir"]) . "<br>";
 
-        if ($data["nilai"] >= 75) {
+        if ($data["nilai_akhir"] >= 75) {
             echo "Status: Lulus<br>";
         } else {
             echo "Status: Remedial<br>";
         }
 
-        if ($data["nilai"] >= 85) {
+        if ($data["nilai_akhir"] >= 85) {
             $grade = "A";
-        } elseif ($data["nilai"] >= 75) {
+        } elseif ($data["nilai_akhir"] >= 75) {
             $grade = "B";
-        } elseif ($data["nilai"] >= 65) {
+        } elseif ($data["nilai_akhir"] >= 65) {
             $grade = "C";
         } else {
             $grade = "D";
