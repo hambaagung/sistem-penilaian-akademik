@@ -8,38 +8,63 @@ if (isset($_GET['keyword'])) {
     $keyword = $_GET['keyword'];
 }
 
-// Ambil semua data dari database
 $result = mysqli_query($conn, "SELECT * FROM mahasiswa");
 ?>
 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Mahasiswa</title>
+</head>
+<body>
+
+<h2>Data Mahasiswa</h2>
+
 <!-- FORM PENCARIAN -->
 <form method="GET">
-    <input type="text" name="keyword" 
-           placeholder="Ketik kata kunci..." 
+    <input type="text" name="keyword"
+           placeholder="Ketik nama / jurusan..."
            value="<?= htmlspecialchars($keyword); ?>">
     <button type="submit">Cari</button>
-    <a href="index.php">Reset Pencarian</a>
+    <a href="index.php">Reset</a>
 </form>
 
-<hr>
+<br>
+
+<table border="1" cellpadding="10">
+<tr>
+    <th>No</th>
+    <th>Nama</th>
+    <th>NIM</th>
+    <th>Jurusan</th>
+    <th>Nilai</th>
+    <th>Status</th>
+    <th>Grade</th>
+    <th>Aksi</th>
+</tr>
 
 <?php
+$no = 1;
 
 while ($data = mysqli_fetch_assoc($result)) {
 
-    // Jika tidak ada pencarian → tampilkan semua
     if ($keyword == "") {
         $tampilkan = true;
     } else {
+
         $nama = strtolower($data["nama"]);
         $jurusan = strtolower($data["jurusan"]);
         $keywordLower = strtolower($keyword);
 
-        if (str_contains($nama, $keywordLower) || 
+        if (str_contains($nama, $keywordLower) ||
             str_contains($jurusan, $keywordLower)) {
+
             $tampilkan = true;
+
         } else {
+
             $tampilkan = false;
+
         }
     }
 
@@ -47,15 +72,10 @@ while ($data = mysqli_fetch_assoc($result)) {
 
         $dataDitemukan = true;
 
-        echo "Nama: " . htmlspecialchars($data["nama"]) . "<br>";
-        echo "NIM: " . htmlspecialchars($data["nim"]) . "<br>";
-        echo "Jurusan: " . htmlspecialchars($data["jurusan"]) . "<br>";
-        echo "Nilai: " . htmlspecialchars($data["nilai_akhir"]) . "<br>";
-
         if ($data["nilai_akhir"] >= 75) {
-            echo "Status: Lulus<br>";
+            $status = "Lulus";
         } else {
-            echo "Status: Remedial<br>";
+            $status = "Remedial";
         }
 
         if ($data["nilai_akhir"] >= 85) {
@@ -67,15 +87,36 @@ while ($data = mysqli_fetch_assoc($result)) {
         } else {
             $grade = "D";
         }
+?>
 
-        echo "Grade: " . $grade . "<br>";
-        echo "<hr>";
+<tr>
+    <td><?= $no++; ?></td>
+    <td><?= htmlspecialchars($data["nama"]); ?></td>
+    <td><?= htmlspecialchars($data["nim"]); ?></td>
+    <td><?= htmlspecialchars($data["jurusan"]); ?></td>
+    <td><?= htmlspecialchars($data["nilai_akhir"]); ?></td>
+    <td><?= $status; ?></td>
+    <td><?= $grade; ?></td>
+
+    <td>
+        <a href="edit.php?id=<?= $data['id']; ?>">Edit</a> |
+        <a href="hapus.php?id=<?= $data['id']; ?>"
+        onclick="return confirm('antum yakin mau hapus?')">
+        Hapus
+        </a>
+    </td>
+</tr>
+
+<?php
     }
 }
 
-// Jika keyword ada tapi data tidak cocok
 if ($keyword != "" && !$dataDitemukan) {
-    echo "Data tidak ditemukan";
+    echo "<tr><td colspan='8'>Data tidak ditemukan</td></tr>";
 }
-
 ?>
+
+</table>
+
+</body>
+</html>
