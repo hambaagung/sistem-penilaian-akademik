@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if(!isset($_SESSION['is_logged_in'])){
+    header("Location: login.php");
+    exit;
+}
+
 include "koneksi.php";
 
 $keyword = "";
@@ -19,6 +26,14 @@ $result = mysqli_query($conn, "SELECT * FROM mahasiswa");
 <body>
 
 <h2>Data Mahasiswa</h2>
+
+<p>Login sebagai: <?= $_SESSION['username']; ?></p>
+<a href="logout.php">Logout</a>
+<br><br>
+
+<a href="tambah_data.php">Tambah Data</a>
+
+<br><br>
 
 <!-- FORM PENCARIAN -->
 <form method="GET">
@@ -101,7 +116,7 @@ while ($data = mysqli_fetch_assoc($result)) {
     <td>
         <a href="edit.php?id=<?= $data['id']; ?>">Edit</a> |
         <a href="hapus.php?id=<?= $data['id']; ?>"
-        onclick="return confirm('antum yakin mau hapus?')">
+        onclick="return confirm('Yakin ingin menghapus data ini?')">
         Hapus
         </a>
     </td>
